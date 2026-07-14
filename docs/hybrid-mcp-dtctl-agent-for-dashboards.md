@@ -151,7 +151,7 @@ print(response)
 
 This hybrid is currently the most powerful and practical way to deliver "Dynatrace without logging in" for complex environments.
 
-The lab (EasyTrade + loadgen + your existing custom prompt + DynaKube) is perfect for validating the pattern before rolling to prod.
+The lab (EasyTrade + loadgen + a custom prompt + DynaKube) is well suited to validating the pattern before rolling to production.
 
 Let me know the next concrete thing to build or test (e.g., "create the dashboard skill file" or "run a test agent that creates a sample EasyTrade dashboard via dtctl"). 
 

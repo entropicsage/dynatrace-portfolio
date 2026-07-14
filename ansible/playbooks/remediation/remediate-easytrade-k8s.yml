@@ -57,7 +57,7 @@
           This action would normally be followed by a Dynatrace SLO check or problem closure comment.
 
     - name: Optional - Run k8s-troubleshoot script for deeper diagnostics
-      shell: "cd ~/projects/dynatrace-portfolio/scripts/devops && ./k8s-troubleshoot.sh | head -50"
+      shell: "cd {{ portfolio_dir | default('~/projects/dynatrace-portfolio') }}/scripts/devops && ./k8s-troubleshoot.sh | head -50"
       register: troubleshoot
       changed_when: false
       ignore_errors: true

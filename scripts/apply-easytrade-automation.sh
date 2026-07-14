@@ -13,11 +13,6 @@ echo "=== Applying EasyTrade Self-Healing Automation to Dynatrace ==="
 echo "Portfolio dir: $PORTFOLIO_DIR"
 echo "Automation dir: $AUTOMATION_DIR"
 
-# Source GitHub env helper if present (for consistency with other scripts)
-if [ -f "your local automation scripts" ]; then
-  source "your local automation scripts" || true
-fi
-
 cd "$AUTOMATION_DIR"
 
 for wf in *.yaml; do
@@ -39,7 +34,3 @@ echo "EasyTrade problems (from problem-operator) should now trigger self-healing
 echo "View in Dynatrace UI under Automation > Workflows or Problems."
 echo ""
 echo "Next: Update your local files and re-apply with this script after changes."
-echo "IDs from last run (for reference):"
-echo "  Broker: 0b71092c-9235-4b37-aa4d-fe3ca90c19f3"
-echo "  Frontend: 6e1d4232-fb4a-4c14-997c-33b1ec78f000"
-echo "  General: 7accfb3e-a801-4a39-b709-8aca9c89df2f"

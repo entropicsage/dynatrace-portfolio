@@ -140,7 +140,7 @@ content:
 
       **Reproduce / Update This Dashboard**:
       ```bash
-      cd ~/projects/dynatrace-portfolio
+      cd dynatrace-portfolio
       dtctl apply -f dashboards/easytrade-microservices.yaml --context my-env --write-id
       # Or full setup: ./scripts/setup-homelab.sh
       ```

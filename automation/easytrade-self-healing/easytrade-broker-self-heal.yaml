@@ -61,7 +61,7 @@ actions:
   - name: "Verify post-remediation health (SLO check)"
     type: "exec-slo"
     input:
-      sloId: "{{ easytrade-broker-availability }}"  # Link to the SLO we created earlier
+      sloId: "{{ easytrade-broker-availability }}"  # Links to the SLO defined in dynatrace/slos/
 
 # Usage in portfolio:
 # 1. dtctl apply -f this-file.yaml --write-id

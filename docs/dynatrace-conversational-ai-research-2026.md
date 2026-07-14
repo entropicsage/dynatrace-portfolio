@@ -124,7 +124,7 @@ From all sources, the winning patterns (2026 state of the art):
 1. **Prioritize B (MCP)**: Enable Dynatrace MCP Server in your tenant (Dynatrace Intelligence section). Connect to Claude (use the plugin or Connectors UI). Load skills plus a custom scoped troubleshooting prompt.
 2. **Enhance with hybrid if desired**: Add langchain-mcp-adapters if building a custom orchestrator.
 3. **Keep data fresh**: Run the load generator continuously (multiple replicas plus CronJob bursts) to keep problems and traces flowing.
-4. **Document & demo**: This research + your existing docs (dynatrace-assist-best-practices.md, claude-dynatrace-mcp-conversational-assist.md) + custom prompt make a strong portfolio piece for "Agentic Observability with Dynatrace + Claude".
+4. **Document & demo**: Combine this research with the companion docs (dynatrace-assist-best-practices.md, claude-dynatrace-mcp-conversational-assist.md) and a custom prompt for an end-to-end "Agentic Observability with Dynatrace + Claude" demo.
 5. **Test prompts** (tailored to EasyTrade):
    - "Using easytrade namespace data and recent loadgen visits (long_sell_error, deposit_and_long_buy_timeout), perform root cause analysis with Davis, show correlated traces/logs, and suggest a remediation workflow."
    - "Health check on easytrade-frontend and reverseproxy. Pull live metrics, any problems, and frontend RUM data."

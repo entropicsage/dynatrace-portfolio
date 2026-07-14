@@ -25,7 +25,7 @@
       changed_when: false
 
     - name: Run the portfolio disk-usage diagnostic script
-      script: "~/projects/dynatrace-portfolio/scripts/devops/disk-usage.sh"
+      script: "{{ portfolio_dir | default('~/projects/dynatrace-portfolio') }}/scripts/devops/disk-usage.sh"
       register: disk_diagnostic
       changed_when: false
       ignore_errors: true

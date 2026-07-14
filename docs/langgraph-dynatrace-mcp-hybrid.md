@@ -42,7 +42,7 @@ Your current assets are a perfect foundation:
 A LangGraph agent can become your "conversational SRE operator":
 1. User (you, via voice/chat/CLI) gives a high-level goal.
 2. Agent uses Dynatrace MCP tools (via adapter) to investigate (problems, spans, logs).
-3. Applies your custom EasyTrade rules/prompt logic.
+3. Applies the custom EasyTrade rules/prompt logic.
 4. Executes or recommends actions (scale loadgen, rollout restart, query dtctl).
 5. Streams updates back conversationally.
 6. Persists the investigation for later review or time travel.
@@ -91,7 +91,7 @@ print(response)
 This agent can:
 - Use natural language with you.
 - Call real Dynatrace tools (DQL, problems, traces) via MCP.
-- Follow your custom rules.
+- Follow the custom scoping rules.
 - Be extended with custom nodes for Kubernetes actions (e.g., via kubectl Python client or dtctl).
 
 For full graphs with persistence/human-in-the-loop, use LangGraph's `StateGraph` instead of the prebuilt ReAct agent.

@@ -42,13 +42,13 @@
     - name: Default general remediation (run system snapshot + service check)
       block:
         - name: Run system snapshot for diagnostics
-          shell: "~/projects/dynatrace-portfolio/scripts/devops/system-snapshot.sh | head -30"
+          shell: "{{ portfolio_dir | default('~/projects/dynatrace-portfolio') }}/scripts/devops/system-snapshot.sh | head -30"
           register: snapshot
           changed_when: false
           ignore_errors: true
 
         - name: Run service check
-          shell: "~/projects/dynatrace-portfolio/scripts/devops/service-check.sh"
+          shell: "{{ portfolio_dir | default('~/projects/dynatrace-portfolio') }}/scripts/devops/service-check.sh"
           register: services
           changed_when: false
           ignore_errors: true

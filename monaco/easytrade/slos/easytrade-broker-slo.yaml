@@ -1,0 +1,9 @@
+name: EasyTrade Broker Service Availability
+description: Availability SLO for the broker service
+target: 99.0
+warning: 99.5
+errorBudgetMetric: builtin:service.errors.total
+metricKey: easytrade.broker.availability
+metricSelector: builtin:service.errors.total
+filter: type("SERVICE"),entityName("broker-service")
+timeframe: now-1h to now

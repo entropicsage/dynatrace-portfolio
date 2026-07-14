@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: easytrade
+  namespace: easytrade
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # Note: Mobile CSS injection via configuration-snippet removed for stability.
+    # The --enable-snippet-annotations flag is not recognized by the ingress-nginx controller
+    # version deployed by the official kind manifest (caused CrashLoopBackOff).
+    # The EasyTrade frontend's root HTML already includes a proper viewport meta tag for basic mobile support.
+    # Recommendation for phone: use landscape orientation, or request desktop site temporarily in browser.
+    # We can explore alternatives later (e.g. Helm values for the reverseproxy or a custom sidecar).
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: easytrade-frontendreverseproxy
+            port:
+              number: 8080
+# This Ingress makes the EasyTrade reverse proxy (the main UI entrypoint)
+# available at the host-mapped port 8081 (via kind extraPortMappings).
+# Access: http://YOUR_WSL_IP:8081 (your WSL IP) or your Windows LAN IP:8081 after portproxy.
+# Note: The root HTML already includes a proper viewport meta tag for phone scaling.

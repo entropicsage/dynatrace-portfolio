@@ -1,0 +1,67 @@
+---
+# remediate-easytrade-k8s.yml
+# Ansible-based self-healing remediation for EasyTrade microservices.
+# This complements the native Dynatrace Workflows (which use built-in kubernetes-restart-deployment actions).
+#
+# Use cases:
+# - Triggered from a Dynatrace Workflow via HTTP request to an Ansible runner
+# - Or run manually/ad-hoc when a problem is detected
+# - Accepts problem context as extra vars for intelligent remediation
+#
+# Example invocation with problem context:
+# ansible-playbook remediate-easytrade-k8s.yml -e "problem_service=broker problem_severity=HIGH"
+#
+# Requires: kubectl configured for the target cluster (kind-dt-homelab in this portfolio)
+
+- name: EasyTrade K8s Self-Healing Remediation
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    namespace: "easytrade"
+    target_service: "{{ problem_service | default('broker') }}"
+    action: "{{ remediation_action | default('restart') }}"
+    scale_replicas: "{{ desired_replicas | default(3) }}"
+
+  tasks:
+    - name: Log incoming problem context (for Dynatrace workflow integration)
+      debug:
+        msg: |
+          Self-healing triggered for EasyTrade.
+          Service: {{ target_service }}
+          Action requested: {{ action }}
+          (In production this would come from a Dynatrace problem webhook or workflow HTTP action)
+
+    - name: Restart deployment (core self-healing action)
+      when: action == 'restart' or action == 'restart_deployment'
+      command: "kubectl rollout restart deployment/{{ target_service }} -n {{ namespace }} --context kind-dt-homelab"
+      register: restart_result
+      changed_when: true
+
+    - name: Scale deployment (for load-related problems)
+      when: action == 'scale'
+      command: "kubectl scale deployment/{{ target_service }} --replicas={{ scale_replicas }} -n {{ namespace }} --context kind-dt-homelab"
+      register: scale_result
+      changed_when: true
+
+    - name: Verify rollout status after remediation
+      command: "kubectl rollout status deployment/{{ target_service }} -n {{ namespace }} --context kind-dt-homelab --timeout=120s"
+      register: status
+      changed_when: false
+
+    - name: Report remediation result
+      debug:
+        msg: |
+          Remediation complete for {{ target_service }}.
+          Status: {{ status.stdout }}
+          This action would normally be followed by a Dynatrace SLO check or problem closure comment.
+
+    - name: Optional - Run k8s-troubleshoot script for deeper diagnostics
+      shell: "cd ~/projects/dynatrace-portfolio/scripts/devops && ./k8s-troubleshoot.sh | head -50"
+      register: troubleshoot
+      changed_when: false
+      ignore_errors: true
+
+    - name: Show troubleshooting snippet
+      debug:
+        msg: "Post-remediation K8s check (first lines):\n{{ troubleshoot.stdout | default('Script not available or no output') }}"

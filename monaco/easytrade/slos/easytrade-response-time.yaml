@@ -1,0 +1,9 @@
+name: EasyTrade Response Time
+description: Response time SLO for EasyTrade
+target: 500
+warning: 300
+errorBudgetMetric: builtin:service.response.time
+metricKey: easytrade.response.time
+metricSelector: builtin:service.response.time
+filter: type("SERVICE")
+timeframe: now-1h to now

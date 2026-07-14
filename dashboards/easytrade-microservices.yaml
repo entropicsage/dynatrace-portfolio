@@ -1,0 +1,178 @@
+name: "EasyTrade Microservices Portfolio"
+type: dashboard
+description: "EasyTrade Microservices Portfolio: 19+ polyglot services, Helm deployment on Kubernetes, Dynatrace Operator with applicationMonitoring, self-healing workflows, and problem generation for authentic observability data."
+owner: "portfolio"
+isprivate: false
+content:
+  - type: markdown
+    title: "EasyTrade Microservices Portfolio Overview"
+    markdown: |
+      **Dynatrace + EasyTrade Microservices Demo (Portfolio Ready)**
+
+      - **Deployment**: Official Helm chart `oci://europe-docker.pkg.dev/dynatrace-demoability/helm/easytrade` (v1.5.2) in `easytrade` namespace on `kind-dt-homelab` (WSL2 + LAN exposure via nginx ingress on 8081).
+      - **Full Observability Hookup**: Dynatrace Operator (Helm) + DynaKube in **applicationMonitoring** mode (polyglot code modules for Java, .NET, Go, Node, etc.). ActiveGate + logMonitoring + metadataEnrichment.
+      - **Current Live State** (as of latest inspection):
+        - Namespace: `easytrade` (primary; all workloads here)
+        - 18 Deployments (accountservice, aggregator-service, broker-service, calculationservice, contentcreator, credit-card-order-service, engine, feature-flag-service, frontend, frontendreverseproxy, loadgen, manager, offerservice, etc.)
+        - 1 StatefulSet: `easytrade-db`
+        - 14 Services + 1 Ingress (easytrade)
+        - ~28 running pods
+        - Loadgen + problem-operator for realistic browser sessions, errors, traces.
+      - **19+ Real Microservices**: Polyglot stack - Java 21/Spring, Go, .NET 8, Node/TS/React, C++, nginx, RabbitMQ, MSSQL.
+      - **Data Generation**: `loadgen` (Playwright browser sessions) + `problem-operator` for Davis AI problems, traces, logs. CronJob for periodic bursts.
+      - **Self-Healing**: Dynatrace Workflows that auto-remediate (restart/scale) on problems.
+      - **Access**: http://localhost:8081 (WSL) or LAN IP:8081 (Windows portproxy). Login: demouser / demopass.
+      - **Mobile**: Ingress CSS injection for MUI DataGrids/buttons. Test on phone (landscape recommended).
+      - **Control**: Fully declarative via `dtctl apply -f dashboards/`, scripts/setup-homelab.sh, and agent.
+      - **Portfolio Value**: Real K8s microservices + Helm + Operator + DynaKube + dtctl + workflows + end-to-end observability + network exposure. Generates authentic data for DT tenant, problems, traces.
+
+      **Tech Stack Summary**:
+      | Layer          | Services / Tech |
+      |----------------|-----------------|
+      | Java/Spring    | accountservice, contentcreator, credit-card-order-service, engine, feature-flag-service, third-party-service |
+      | Go             | aggregator-service, pricing-service, problem-operator |
+      | .NET 8         | broker-service, loginservice, manager |
+      | Node/TS/React  | frontend, offerservice, loadgen |
+      | Other          | calculationservice (C++), frontendreverseproxy (nginx), rabbitmq, db (MSSQL) |
+
+      **Generate Monitoring Data**:
+      - Browse UI or trigger loadgen.
+      - Watch Davis create problems → workflows heal.
+      - Use on phone for mobile validation.
+
+  - type: dql
+    title: "EasyTrade Services Inventory"
+    query: |
+      fetch dt.entity.service 
+      | filter contains(entity.name, "easytrade") 
+        or contains(entity.name, "accountservice") 
+        or contains(entity.name, "broker-service") 
+        or contains(entity.name, "frontend") 
+        or contains(entity.name, "contentcreator") 
+        or contains(entity.name, "pricing-service") 
+        or contains(entity.name, "loadgen") 
+        or contains(entity.name, "problem-operator") 
+        or contains(entity.name, "calculationservice") 
+        or contains(entity.name, "offer") 
+        or contains(entity.name, "credit-card") 
+      | fields entity.name, entity.type, dt.entity.service 
+      | sort entity.name 
+      | limit 100
+
+  - type: dql
+    title: "Service Response Time (Key Services)"
+    query: |
+      timeseries avg(builtin:service.response.time), by:{dt.entity.service} 
+      | filter dt.entity.service contains "accountservice" 
+        or dt.entity.service contains "broker-service" 
+        or dt.entity.service contains "frontend" 
+        or dt.entity.service contains "contentcreator" 
+        or dt.entity.service contains "pricing-service" 
+        or dt.entity.service contains "loadgen" 
+        or dt.entity.service contains "credit-card-order-service" 
+        or dt.entity.service contains "frontendreverseproxy" 
+      | limit 100
+
+  - type: dql
+    title: "Error Rate & Throughput (Key Services)"
+    query: |
+      timeseries 
+        avg(builtin:service.errors.total), 
+        sum(builtin:service.request.count), 
+        by:{dt.entity.service} 
+      | filter dt.entity.service contains "accountservice" 
+        or dt.entity.service contains "broker-service" 
+        or dt.entity.service contains "frontend" 
+        or dt.entity.service contains "contentcreator" 
+        or dt.entity.service contains "pricing-service" 
+        or dt.entity.service contains "loadgen" 
+        or dt.entity.service contains "credit-card-order-service" 
+      | limit 100
+
+  - type: problems
+    title: "EasyTrade Problems (Davis AI Root Cause)"
+    query: |
+      fetch dt.davis.problems 
+      | filter status == "open" 
+        and (contains(title, "easytrade") 
+          or contains(title, "EasyTrade") 
+          or contains(affected_entity, "easytrade") 
+          or contains(affected_entity, "accountservice") 
+          or contains(affected_entity, "broker") 
+          or contains(affected_entity, "frontend") 
+          or contains(affected_entity, "problem-operator")) 
+      | limit 20
+
+  - type: dql
+    title: "Kubernetes - EasyTrade Pods & Workloads (easytrade ns)"
+    query: |
+      fetch k8s_pods 
+      | filter k8s.namespace.name == "easytrade" 
+      | fields k8s.pod.name, k8s.deployment.name, k8s.pod.status, k8s.node.name 
+      | sort k8s.pod.name 
+      | limit 50
+
+  - type: dql
+    title: "Kubernetes - Namespace Workloads (easytrade)"
+    query: |
+      fetch k8s_namespace_workloads 
+      | filter k8s.namespace.name == "easytrade" 
+      | limit 30
+
+  - type: markdown
+    title: "Loadgen, Problem-Operator & Self-Healing"
+    markdown: |
+      **Load Generation & Controlled Problems**:
+      - The `loadgen` service (Node) injects realistic trading load and errors via Playwright browser sessions.
+      - The `problem-operator` (Go) triggers specific problems (high latency, errors, crashes) for Davis AI and workflow demos.
+      - Trigger via UI or service endpoints. CronJob (every 20m) for bursts.
+
+      **Self-Healing Workflows** (Automation > Workflows):
+      - EasyTrade - Broker Self-Healing
+      - EasyTrade - Frontend & ContentCreator Self-Healing
+      - EasyTrade - General Self-Healing & Remediation
+      Triggered by Davis problems; use K8s actions (restart/scale via DynaKube).
+
+      **Access & Mobile**:
+      - Primary: http://localhost:8081 (WSL) or Windows LAN IP:8081 (netsh portproxy + firewall).
+      - Hard refresh on mobile; landscape for best view. Ingress injects responsive CSS for MUI DataGrids (scroll) and larger buttons.
+      - React + MUI trading app (accounts, credit cards, offers, etc.).
+
+      **Reproduce / Update This Dashboard**:
+      ```bash
+      cd ~/projects/dynatrace-portfolio
+      dtctl apply -f dashboards/easytrade-microservices.yaml --context my-env --write-id
+      # Or full setup: ./scripts/setup-homelab.sh
+      ```
+      All declarative. Source of truth in this repo. Works with agent for continuous updates.
+
+      **Portfolio Notes**:
+      - Built with dtctl, kind, Helm, and the Dynatrace Operator.
+      - Generates authentic multi-service traces, metrics, logs, problems for DT features (Davis, DQL, workflows, SLOs, MCP).
+      - Ready for LinkedIn, demos, training, external agents (Claude via MCP).
+      - Namespaces on new clusters: only `easytrade` for the Helm chart itself (plus `ingress-nginx` and `dynatrace` for full setup).
+
+  - type: dql
+    title: "Recent Traces / Distributed Tracing (EasyTrade)"
+    query: |
+      fetch spans 
+      | filter contains(service.name, "easytrade") 
+        or contains(service.name, "accountservice") 
+        or contains(service.name, "broker") 
+        or contains(service.name, "frontend") 
+        or contains(service.name, "loadgen") 
+        or contains(service.name, "credit-card") 
+      | limit 20
+
+  - type: dql
+    title: "EasyTrade Related Entities Summary"
+    query: |
+      fetch dt.entity.service 
+      | filter contains(entity.name, "easytrade") 
+        or contains(entity.name, "accountservice") 
+        or contains(entity.name, "broker-service") 
+        or contains(entity.name, "frontend") 
+        or contains(entity.name, "problem-operator") 
+        or contains(entity.name, "credit-card-order-service") 
+      | summarize count(), by:{entity.type} 
+      | limit 20

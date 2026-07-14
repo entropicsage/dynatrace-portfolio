@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: easytrade
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # Official EasyTrade Helm chart (OCI)
+    repoURL: oci://europe-docker.pkg.dev/dynatrace-demoability/helm
+    chart: easytrade
+    targetRevision: v1.5.2
+    helm:
+      releaseName: easytrade
+      values: |
+        # Example overrides for observability focus
+        namespace: easytrade
+        # Add any custom values matching your k8s/easytrade-ingress.yaml etc.
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: easytrade
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  # In production, add sync waves or dependencies:
+  # sync:
+  #   syncStrategy:
+  #     hook:
+  #       ...
+  # After deploy, DT Operator injects agents; self-healing workflows in automation/ take over.

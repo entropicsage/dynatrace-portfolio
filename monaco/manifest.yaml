@@ -1,0 +1,13 @@
+manifestVersion: "1.0"
+projects:
+- name: easytrade
+  path: easytrade
+environmentGroups:
+- name: default
+  environments:
+  - name: my-dt
+    url:
+      value: https://YOUR_TENANT_ID.live.dynatrace.com
+    auth:
+      token:
+        value: YOUR_DT_API_TOKEN_HERE

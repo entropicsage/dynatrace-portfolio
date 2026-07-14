@@ -1,0 +1,6 @@
+---
+- name: restart oneagent
+  systemd:
+    name: oneagent
+    state: restarted
+  listen: restart oneagent

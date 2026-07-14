@@ -1,0 +1,19 @@
+---
+# deploy-dynatrace-stack.yml
+# Combined playbook to prepare hosts and deploy both OneAgent and ActiveGate.
+# This is the main entry point for most Dynatrace automation in this portfolio.
+#
+# It prepares the host, installs OneAgent (for application and infra monitoring),
+# and optionally an ActiveGate.
+#
+# Run with appropriate inventory groups.
+
+- name: Include host preparation
+  import_playbook: prepare-host.yml
+
+- name: Deploy OneAgent to all Linux hosts
+  import_playbook: install-oneagent-linux.yml
+
+- name: Deploy ActiveGate to designated hosts
+  import_playbook: install-activegate-linux.yml
+  when: "'activegates' in group_names"

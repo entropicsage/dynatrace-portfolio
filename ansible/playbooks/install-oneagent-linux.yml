@@ -1,0 +1,85 @@
+---
+# install-oneagent-linux.yml
+# Deploys Dynatrace OneAgent on Linux hosts.
+# This feeds data into the tenant used by the EasyTrade portfolio dashboards.
+#
+# Requirements:
+# - Ansible control machine with access to target hosts
+# - Valid PaaS token from Dynatrace UI (with "PaaS integration" scope)
+#
+# Usage:
+#   ansible-playbook -i inventory/hosts.ini playbooks/install-oneagent-linux.yml \
+#     -e "dynatrace_tenant_url=https://abc123.live.dynatrace.com dynatrace_paas_token=dt0c01..."
+#
+# Tags: oneagent, monitoring
+
+- name: Deploy Dynatrace OneAgent on Linux
+  hosts: linux_hosts
+  become: yes
+  gather_facts: yes
+  vars:
+    dynatrace_tenant_url: "{{ dynatrace_tenant_url | default('https://YOUR_TENANT.live.dynatrace.com') }}"
+    dynatrace_paas_token: "{{ dynatrace_paas_token | default('YOUR_PAAS_TOKEN') }}"
+    oneagent_installer_url: "{{ dynatrace_tenant_url }}/api/v1/deployment/installer/agent/unix/default/latest"
+    oneagent_install_dir: "/opt/dynatrace/oneagent"
+    host_group: "easytrade-homelab"
+
+  tasks:
+    - name: Ensure required packages are installed
+      package:
+        name:
+          - curl
+          - unzip
+        state: present
+
+    - name: Create OneAgent install directory
+      file:
+        path: "{{ oneagent_install_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Download OneAgent installer
+      get_url:
+        url: "{{ oneagent_installer_url }}?Api-Token={{ dynatrace_paas_token }}"
+        dest: "{{ oneagent_install_dir }}/oneagent-installer.sh"
+        mode: '0755'
+        force: no
+      register: download_result
+      until: download_result is succeeded
+      retries: 3
+      no_log: true
+      delay: 5
+
+    - name: Install OneAgent with configuration
+      shell: |
+        {{ oneagent_install_dir }}/oneagent-installer.sh \
+          --set-host-group={{ host_group }} \
+          --set-host-property=environment:homelab \
+          --set-host-property=app:easytrade \
+          --set-infra-only=false
+      args:
+        creates: "{{ oneagent_install_dir }}/agent/conf/tenant.conf"
+      register: install_result
+      changed_when: "'OneAgent installed' in install_result.stdout or install_result.rc == 0"
+
+    - name: Ensure OneAgent service is started and enabled
+      systemd:
+        name: oneagent
+        state: started
+        enabled: yes
+
+    - name: Verify OneAgent installation
+      command: "{{ oneagent_install_dir }}/agent/tools/oneagentctl --get-host-id"
+      register: host_id
+      changed_when: false
+
+    - name: Display OneAgent host ID
+      debug:
+        msg: "OneAgent installed successfully. Host ID: {{ host_id.stdout }}"
+
+    - name: Note for Dynatrace integration
+      debug:
+        msg: |
+          This host should now appear in your Dynatrace tenant under Hosts.
+          It will contribute to the EasyTrade Microservices Portfolio dashboard
+          via infrastructure and process metrics.

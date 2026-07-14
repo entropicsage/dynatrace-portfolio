@@ -1,0 +1,36 @@
+{
+  "id": "239ebb38-7df8-432c-8880-a4e230fe4689",
+  "name": "EasyTrade Microservices Portfolio",
+  "tiles": [
+    {
+      "name": "Service Response Time",
+      "type": "data",
+      "tileType": "DATA_EXPLORER",
+      "queries": [
+        {
+          "id": "A",
+          "query": "timeseries avg(builtin:service.response.time), by:{dt.entity.service} | filter dt.entity.service contains 'accountservice' or dt.entity.service contains 'broker-service' or dt.entity.service contains 'calculationservice' or dt.entity.service contains 'frontend' or dt.entity.service contains 'contentcreator' or dt.entity.service contains 'reverseproxy'"
+        }
+      ],
+      "visualConfig": {
+        "type": "GRAPH_CHART",
+        "seriesType": "LINE"
+      }
+    },
+    {
+      "name": "Error Rate",
+      "type": "data",
+      "tileType": "DATA_EXPLORER",
+      "queries": [
+        {
+          "id": "B",
+          "query": "timeseries avg(builtin:service.errors.total), by:{dt.entity.service} | filter dt.entity.service contains 'accountservice' or dt.entity.service contains 'broker-service' or dt.entity.service contains 'calculationservice' or dt.entity.service contains 'frontend' or dt.entity.service contains 'contentcreator' or dt.entity.service contains 'reverseproxy'"
+        }
+      ],
+      "visualConfig": {
+        "type": "GRAPH_CHART",
+        "seriesType": "LINE"
+      }
+    }
+  ]
+}

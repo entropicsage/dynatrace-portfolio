@@ -1,0 +1,11 @@
+name: "easyTravel Demo App Performance"
+type: dashboard
+description: "Portfolio: easyTravel (Dynatrace demo) services, traces, problems, loadgen. Controlled via dtctl."
+owner: "portfolio"
+content:
+  - type: markdown
+    title: "easyTravel Overview"
+    markdown: "Dynatrace easyTravel demo deployed to kind-dt-homelab. Services: frontend, backend, mongodb, nginx, loadgenerator. Use loadgen to inject problems for Davis AI demos."
+  - type: dql
+    title: "easyTravel Services"
+    query: "fetch dt.entity.service | filter entity.name contains 'easytravel' or entity.name contains 'backend' | limit 20"

@@ -1,0 +1,10 @@
+{
+  "name": "EasyTrade Availability",
+  "description": "Availability SLO for EasyTrade microservices - tracks successful request rate across key services",
+  "target": 99.5,
+  "warning": 99.8,
+  "metricExpression": "(100)*(builtin:service.errors.server.successCount:splitBy())/(builtin:service.requestCount.server:splitBy())",
+  "evaluationType": "AGGREGATE",
+  "filter": "type(SERVICE),entityName.startsWith(\"easytrade\")",
+  "evaluationWindow": "-1w"
+}

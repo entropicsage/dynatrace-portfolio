@@ -1,0 +1,21 @@
+{
+  "id": "896733f6-b0a5-4a39-8162-da17ae0325a5",
+  "dashboardMetadata": {
+    "name": "EasyTrade Services Health",
+    "shared": false,
+    "owner": "Tim Goodwin",
+    "tags": ["easytrade", "services", "dynatrace"]
+  },
+  "tiles": [
+    {
+      "name": "Key Services Status",
+      "tileType": "DATA_EXPLORER",
+      "queries": [
+        {
+          "id": "A",
+          "query": "timeseries avg(builtin:service.response.time), by:{dt.entity.service} | filter dt.entity.service contains 'accountservice' or dt.entity.service contains 'broker-service' or dt.entity.service contains 'calculationservice' or dt.entity.service contains 'frontend' or dt.entity.service contains 'contentcreator'"
+        }
+      ]
+    }
+  ]
+}

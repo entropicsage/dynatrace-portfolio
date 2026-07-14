@@ -1,0 +1,40 @@
+name: Lint & Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate YAML files
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: |
+            k8s/
+            ansible/
+            gitops/
+            automation/
+          config_data: |
+            extends: default
+            rules:
+              line-length:
+                max: 200
+              truthy:
+                check-keys: false
+              document-start: disable
+              comments-indentation: disable
+
+      - name: Lint shell scripts
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: scripts/
+
+      - name: Validate Terraform format
+        uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check -recursive terraform-examples/

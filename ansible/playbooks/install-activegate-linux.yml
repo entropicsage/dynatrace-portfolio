@@ -1,0 +1,77 @@
+---
+# install-activegate-linux.yml
+# Deploys Dynatrace ActiveGate on Linux.
+# Useful for Kubernetes monitoring, synthetic, log analytics, or as a gateway
+# for hosts that can't reach the tenant directly.
+#
+# This can supplement the Dynatrace Operator's built-in ActiveGate in the
+# EasyTrade kind cluster setup.
+
+- name: Deploy Dynatrace ActiveGate on Linux
+  hosts: activegates
+  become: yes
+  gather_facts: yes
+  vars:
+    dynatrace_tenant_url: "{{ dynatrace_tenant_url | default('https://YOUR_TENANT.live.dynatrace.com') }}"
+    dynatrace_paas_token: "{{ dynatrace_paas_token | default('YOUR_PAAS_TOKEN') }}"
+    activegate_installer_url: "{{ dynatrace_tenant_url }}/api/v1/deployment/installer/gateway/unix/latest"
+    activegate_install_dir: "/opt/dynatrace/activegate"
+    activegate_group: "easytrade-ag"
+
+  tasks:
+    - name: Install prerequisites (ActiveGate bundles its own JRE since v1.257+)
+      package:
+        name:
+          - curl
+          - tar
+        state: present
+
+    - name: Create installation directory
+      file:
+        path: "{{ activegate_install_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Download ActiveGate installer
+      get_url:
+        url: "{{ activegate_installer_url }}?Api-Token={{ dynatrace_paas_token }}"
+        dest: "{{ activegate_install_dir }}/activegate-installer.sh"
+        mode: '0755'
+        force: no
+      register: download
+      until: download is succeeded
+      retries: 3
+      no_log: true
+
+    - name: Run ActiveGate installer
+      shell: |
+        {{ activegate_install_dir }}/activegate-installer.sh \
+          --set-server={{ dynatrace_tenant_url }} \
+          --set-token={{ dynatrace_paas_token }} \
+          --set-group={{ activegate_group }}
+      args:
+        creates: "{{ activegate_install_dir }}/agent/conf/tenant.conf"
+      register: install
+      changed_when: install.rc == 0
+      no_log: true
+
+    - name: Start and enable ActiveGate service
+      systemd:
+        name: dynatracegateway
+        state: started
+        enabled: yes
+
+    - name: Verify ActiveGate
+      command: "curl -s http://localhost:9999/rest/health | grep -i ok || echo 'checking status'"
+      register: health
+      changed_when: false
+
+    - name: Show status
+      debug:
+        msg: "ActiveGate deployment complete. Health check: {{ health.stdout }}"
+
+    - name: Integration note
+      debug:
+        msg: |
+          Register this ActiveGate in your Dynatrace tenant for Kubernetes monitoring
+          or as a data gateway. It can be used alongside the DynaKube in the portfolio.

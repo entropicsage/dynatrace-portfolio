@@ -1,0 +1,44 @@
+# Copy of automation/easytrade-self-healing/easytrade-broker-self-heal.yaml
+# Use dtctl apply -f dynatrace/workflows/easytrade-broker-self-heal.yaml --write-id
+# (Placed here for consistency with existing dynatrace/dashboards and dynatrace/slos structure)
+
+title: "EasyTrade - Broker Self-Healing"
+description: "Self-healing automation for the EasyTrade broker service. On Davis-detected problems (e.g. high error rate from loadgen or problem-operator), automatically remediate by restarting the deployment and notifying. Part of the Dynatrace portfolio demo for auto-remediation on microservices."
+
+trigger:
+  type: on-problem
+  filter:
+    entity:
+      - "easytrade-broker"
+    problemTitle:
+      - contains: "EasyTrade"
+      - contains: "broker"
+    or:
+      - metric: "builtin:service.errors.total"
+        threshold: 5
+
+actions:
+  - name: "Add problem comment with remediation plan"
+    type: "add-comment"
+    input:
+      comment: |
+        [AUTO-REMEDIATION] EasyTrade Broker issue detected.
+        Triggered self-healing: Will restart deployment/broker in easytrade ns.
+        Cluster: kind-dt-homelab
+        Monitored via DynaKube applicationMonitoring.
+
+  - name: "Execute broker deployment restart (self-heal)"
+    type: "kubernetes-restart-deployment"
+    input:
+      namespace: "easytrade"
+      deployment: "broker"
+
+  - name: "Notify on self-healing action"
+    type: "notification"
+    input:
+      message: "EasyTrade Broker self-healed. Deployment restarted. Check traces in Dynatrace."
+
+  - name: "Verify post-remediation health (SLO check)"
+    type: "exec-slo"
+    input:
+      sloId: "{{ easytrade-broker-availability }}"

@@ -1,0 +1,16 @@
+---
+# Common variables for Dynatrace Ansible playbooks
+# Use Ansible Vault for sensitive values in real deployments:
+#   ansible-vault encrypt group_vars/all.yml
+
+dynatrace_tenant_url: "https://YOUR_TENANT_ID.live.dynatrace.com"
+dynatrace_paas_token: "YOUR_PAAS_TOKEN_HERE"  # Replace or vault this
+
+# OneAgent settings
+oneagent_host_group: "easytrade-homelab"
+oneagent_properties:
+  - "environment:homelab"
+  - "app:easytrade"
+
+# ActiveGate settings
+activegate_group: "easytrade-ag"

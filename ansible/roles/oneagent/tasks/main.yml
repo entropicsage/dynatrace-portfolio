@@ -1,0 +1,25 @@
+---
+- name: Ensure prerequisites
+  package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ oneagent_prerequisites }}"
+
+- name: Download OneAgent installer
+  get_url:
+    url: "{{ dynatrace_tenant_url }}/api/v1/deployment/installer/agent/unix/default/latest?Api-Token={{ dynatrace_paas_token }}"
+    dest: /tmp/oneagent-installer.sh
+    mode: '0755'
+  no_log: true
+
+- name: Install OneAgent
+  shell: /tmp/oneagent-installer.sh --set-host-group={{ oneagent_host_group }} --set-host-property=environment:homelab --set-host-property=app:easytrade
+  args:
+    creates: /opt/dynatrace/oneagent/agent/conf/tenant.conf
+
+- name: Start OneAgent service
+  systemd:
+    name: oneagent
+    state: started
+    enabled: true
+  notify: restart oneagent

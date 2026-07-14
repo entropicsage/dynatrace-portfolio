@@ -1,0 +1,66 @@
+---
+# remediate-disk-space.yml
+# Ansible self-healing playbook for disk-related problems.
+# Triggered when Dynatrace raises high disk usage or inode alerts on hosts running EasyTrade or the kind cluster.
+#
+# Integrates with the existing devops scripts (disk-usage.sh, disk-grow.sh).
+# In a real setup, this can be called from a Dynatrace Workflow using "Run script" or an external runner.
+
+- name: Disk Space Self-Healing Remediation
+  hosts: linux_hosts
+  become: yes
+  gather_facts: yes
+  vars:
+    threshold_percent: 85
+    problem_context: "{{ problem_title | default('High disk usage detected by Dynatrace') }}"
+
+  tasks:
+    - name: Log the triggering problem (from Dynatrace event)
+      debug:
+        msg: "Self-healing for disk issue: {{ problem_context }} on {{ inventory_hostname }}"
+
+    - name: Check current disk usage
+      command: "df -h / | tail -1"
+      register: df_output
+      changed_when: false
+
+    - name: Run the portfolio disk-usage diagnostic script
+      script: "~/projects/dynatrace-portfolio/scripts/devops/disk-usage.sh"
+      register: disk_diagnostic
+      changed_when: false
+      ignore_errors: true
+
+    - name: Display diagnostic summary
+      debug:
+        msg: "{{ disk_diagnostic.stdout | default('Diagnostic script output') }}"
+
+    - name: Clean up common safe locations (logs, caches, temp)
+      shell: |
+        # Safe cleanup patterns often triggered by Dynatrace disk alerts
+        find /var/log -name "*.log.*" -mtime +7 -delete 2>/dev/null || true
+        find /tmp -type f -mtime +3 -delete 2>/dev/null || true
+        journalctl --vacuum-time=3d || true
+        docker system prune -f 2>/dev/null || true
+      register: cleanup
+      changed_when: true
+
+    - name: Re-check disk after cleanup
+      command: "df -h / | tail -1"
+      register: df_after
+
+    - name: Report before/after
+      debug:
+        msg: |
+          Disk remediation complete on {{ inventory_hostname }}.
+          Before: {{ df_output.stdout }}
+          After:  {{ df_after.stdout }}
+          Cleanup actions performed.
+
+    - name: If still critical, note that disk-grow.sh or manual intervention is needed
+      debug:
+        msg: "If usage remains high, consider running disk-grow.sh or expanding the volume."
+      when: (df_after.stdout | regex_search('([0-9]+)%', '\\1') | int) > threshold_percent
+
+    - name: Tag host in Dynatrace context (example)
+      debug:
+        msg: "In production: Use dtctl or Dynatrace API to add custom tag or close problem after successful remediation."

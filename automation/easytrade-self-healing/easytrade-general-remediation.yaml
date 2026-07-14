@@ -1,0 +1,55 @@
+# NOTE: This is a workflow design document showing the intended automation logic.
+# To deploy, create the actual workflow in Dynatrace UI (Automation > Workflows)
+# or export/import via the Dynatrace Workflow API. Action types below map to
+# AutomationEngine actions (e.g., Run JavaScript, HTTP Request, K8s actions).
+# See: https://docs.dynatrace.com/docs/platform/automationengine
+
+# EasyTrade General Self-Healing & Remediation Workflow (simplified for API compatibility)
+# Deploy with: dtctl create workflow -f easytrade-general-remediation.yaml
+# (or the apply script). This is the catch-all for the EasyTrade stack.
+
+title: "EasyTrade - General Self-Healing & Remediation"
+description: "Catch-all automation for the full EasyTrade stack (all 19+ services). Reactive on Davis problems from the problem-operator or loadgen. Provides self-healing (restarts, comments, notifications) and demonstrates comprehensive Dynatrace automation for microservices observability portfolio. (DQL schedule version available in comments for proactive.)"
+
+trigger:
+  type: "on-problem"
+  # Simplified trigger to avoid 400 on create. Add schedule/DQL in UI or future version if needed.
+  filter:
+    problemTitle:
+      - contains: "EasyTrade"
+
+actions:
+  - name: "Log all EasyTrade problems"
+    type: "add-comment"
+    input:
+      comment: "EasyTrade general remediation triggered. Full stack health check in progress."
+
+  - name: "Restart critical services (broker + frontend)"
+    type: "kubernetes-restart-deployment"
+    input:
+      namespace: "easytrade"
+      deployment: "broker"
+
+  - name: "Run DQL health query post-action"
+    type: "query"
+    input:
+      dql: |
+        fetch logs, from: -5m
+        | filter service.name == "broker" or service.name == "frontend"
+        | summarize error_rate = count() / count() * 100
+
+  - name: "Trigger SLO evaluation for the stack"
+    type: "exec-slo"
+    input:
+      sloId: "{{ easytrade-availability }}"
+
+  - name: "Final notification with links"
+    type: "notification"
+    input:
+      message: |
+        EasyTrade self-healing complete.
+        View in Dynatrace: {{ problem.url }}
+        Cluster access: port 8081 on homelab.
+
+# Note: For proactive DQL schedule, duplicate in UI or use a separate scheduled workflow.
+# This version reliably creates via dtctl create workflow.

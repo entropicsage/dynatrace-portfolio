@@ -1,0 +1,46 @@
+apiVersion: dynatrace.com/v1beta6
+kind: DynaKube
+metadata:
+  name: dynakube
+  namespace: dynatrace
+spec:
+  apiUrl: https://YOUR_TENANT_ID.live.dynatrace.com/api
+  tokens: dynatrace
+
+  # Enriches pod telemetry/logs with k8s metadata (workload, namespace, etc.)
+  metadataEnrichment:
+    enabled: true
+
+  activeGate:
+    capabilities:
+      - kubernetes-monitoring   # required context for Log Monitoring (you already had this)
+      - routing                 # routes code-module + log-module traffic through the in-cluster AG
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 768Mi
+
+  oneAgent:
+    applicationMonitoring:
+      namespaceSelector:
+        matchExpressions:
+          - key: kubernetes.io/metadata.name
+            operator: In
+            values:
+              - easytrade
+
+  # Standalone Kubernetes Log module (required in app-only mode — no host OneAgent exists)
+  logMonitoring:
+    ingestRuleMatchers:
+      - attribute: k8s.namespace.name
+        values:
+          - easytrade
+
+  templates:
+    logMonitoring:
+      imageRef:
+        repository: public.ecr.aws/dynatrace/dynatrace-logmodule
+        tag: 1.331.49.20260227-104933   # check ECR Public Gallery for the newest tag; "latest" is NOT a valid tag

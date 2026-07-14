@@ -1,0 +1,65 @@
+{
+  "name": "EasyTrade Microservices Portfolio",
+  "type": "dashboard",
+  "content": {
+    "version": 21,
+    "variables": [],
+    "tiles": {
+      "1": {
+        "type": "markdown",
+        "content": "# EasyTrade Microservices Portfolio\n\n**Dynatrace + EasyTrade (19+ polyglot services)**\n\n- Deployment: Helm oci://.../easytrade v1.5.2, ns=easytrade, kind-dt-homelab + DynaKube (applicationMonitoring).\n- Services: Java (accountservice etc.), .NET, Go (incl. problem-operator), Node (frontend/loadgen), C++, nginx, RabbitMQ, MSSQL.\n- Data: loadgen + problem-operator for traces/errors/Davis problems.\n- Self-healing workflows via dtctl.\n- Access: localhost:8081 (demouser/demopass). Mobile friendly.\n\nRe-deploy: dtctl apply -f dynatrace/dashboards/easytrade-microservices.json --context my-env"
+      },
+      "2": {
+        "type": "data",
+        "title": "K8s Pods - easytrade Namespace",
+        "query": "smartscapeNodes K8S_POD | filter k8s.namespace.name == \"easytrade\" | fields k8s.pod.name, k8s.deployment.name, k8s.pod.phase | limit 50",
+        "visualization": "table",
+        "visualizationSettings": {},
+        "querySettings": {}
+      },
+      "3": {
+        "type": "data",
+        "title": "Service Response Time (Key Services)",
+        "query": "timeseries avg(dt.service.request.response_time), by:{dt.service.name} | filter contains(dt.service.name, \"loginservice\") or contains(dt.service.name, \"loadgen\") or contains(dt.service.name, \"accountservice\") | limit 100",
+        "visualization": "lineChart",
+        "visualizationSettings": {},
+        "querySettings": {}
+      },
+      "4": {
+        "type": "data",
+        "title": "Davis Problems (EasyTrade)",
+        "query": "fetch dt.davis.problems | filter status == \"open\" and (contains(title, \"easytrade\") or contains(affected_entity, \"easytrade\") or contains(affected_entity, \"loginservice\") or contains(affected_entity, \"loadgen\")) | limit 20",
+        "visualization": "table",
+        "visualizationSettings": {},
+        "querySettings": {}
+      }
+    },
+    "layouts": {
+      "1": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "2": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 8
+      },
+      "3": {
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      },
+      "4": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 8
+      }
+    }
+  },
+  "id": "f4118639-e27d-469f-85b9-59d32fe25fa8"
+}

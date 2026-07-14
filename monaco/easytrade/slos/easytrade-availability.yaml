@@ -1,0 +1,9 @@
+name: EasyTrade Availability
+description: Availability SLO for EasyTrade microservices
+target: 99.5
+warning: 99.9
+errorBudgetMetric: builtin:service.errors.total
+metricKey: easytrade.availability
+metricSelector: builtin:service.errors.total
+filter: type("SERVICE")
+timeframe: now-1h to now

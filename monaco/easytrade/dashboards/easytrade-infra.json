@@ -1,0 +1,38 @@
+{
+  "dashboardMetadata": {
+    "name": "EasyTrade Kubernetes Infrastructure",
+    "shared": false,
+    "owner": "Tim Goodwin",
+    "tags": ["easytrade", "k8s", "infrastructure", "dynatrace"]
+  },
+  "tiles": [
+    {
+      "name": "Pod CPU Usage",
+      "tileType": "DATA_EXPLORER",
+      "queries": [
+        {
+          "id": "A",
+          "query": "timeseries avg(k8s.pod.cpu.usage), by:{k8s.pod.name}"
+        }
+      ],
+      "visualConfig": {
+        "type": "GRAPH_CHART",
+        "seriesType": "LINE"
+      }
+    },
+    {
+      "name": "Pod Memory",
+      "tileType": "DATA_EXPLORER",
+      "queries": [
+        {
+          "id": "B",
+          "query": "timeseries avg(k8s.pod.memory.working_set), by:{k8s.pod.name}"
+        }
+      ],
+      "visualConfig": {
+        "type": "GRAPH_CHART",
+        "seriesType": "LINE"
+      }
+    }
+  ]
+}

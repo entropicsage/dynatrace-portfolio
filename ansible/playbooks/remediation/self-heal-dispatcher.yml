@@ -1,0 +1,63 @@
+---
+# self-heal-dispatcher.yml
+# Meta-playbook for Dynatrace-triggered self-healing.
+# This playbook inspects variables passed from a Dynatrace Workflow / problem event
+# and dispatches to the appropriate remediation playbook.
+#
+# Integration pattern:
+# 1. Dynatrace Workflow detects a problem (as already defined in automation/easytrade-self-healing/)
+# 2. Workflow uses an "HTTP request" action or "Execute script" to call a runner
+# 3. Runner invokes: ansible-playbook self-heal-dispatcher.yml -e "problem_title=... problem_entity=... problem_severity=..."
+#
+# This shows advanced automation skills: context-aware remediation.
+
+- name: Dynatrace Self-Healing Dispatcher
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    problem_title: "{{ problem_title | default('Unknown EasyTrade problem') }}"
+    problem_entity: "{{ problem_entity | default('easytrade') }}"
+    problem_type: "{{ problem_type | default('performance') }}"
+
+  tasks:
+    - name: Parse problem and decide remediation strategy
+      debug:
+        msg: |
+          Received problem from Dynatrace:
+            Title: {{ problem_title }}
+            Entity: {{ problem_entity }}
+            Type: {{ problem_type }}
+
+    - name: Route to EasyTrade K8s remediation for broker/frontend issues
+      include_tasks: remediate-easytrade-k8s.yml
+      when: "'broker' in problem_entity or 'frontend' in problem_entity or 'EasyTrade' in problem_title"
+      vars:
+        target_service: "{{ 'broker' if 'broker' in problem_entity else 'frontend' }}"
+
+    - name: Route to disk remediation for storage alerts
+      include_tasks: remediate-disk-space.yml
+      when: "'disk' in problem_title | lower or 'storage' in problem_title | lower or 'inode' in problem_title | lower"
+
+    - name: Default general remediation (run system snapshot + service check)
+      block:
+        - name: Run system snapshot for diagnostics
+          shell: "~/projects/dynatrace-portfolio/scripts/devops/system-snapshot.sh | head -30"
+          register: snapshot
+          changed_when: false
+          ignore_errors: true
+
+        - name: Run service check
+          shell: "~/projects/dynatrace-portfolio/scripts/devops/service-check.sh"
+          register: services
+          changed_when: false
+          ignore_errors: true
+      when: "problem_type == 'general' or not ('broker' in problem_entity or 'disk' in problem_title | lower)"
+
+    - name: Final summary for Dynatrace workflow / problem comment
+      debug:
+        msg: |
+          Self-healing dispatcher completed.
+          Problem: {{ problem_title }}
+          Recommended next step: Check SLOs and traces in Dynatrace.
+          (In full setup, this output would be posted back to the problem via API or webhook.)

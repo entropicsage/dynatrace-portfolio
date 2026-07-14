@@ -1,0 +1,10 @@
+name: "EasyTrade SLOs"
+type: slo
+description: "Portfolio SLOs for EasyTrade microservices (Helm on kind). Declarative via dtctl."
+slos:
+  - name: "EasyTrade Frontend Availability"
+    target: 99.0
+    warning: 99.5
+  - name: "EasyTrade Services Error Rate"
+    target: 95
+    warning: 98

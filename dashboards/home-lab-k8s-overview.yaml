@@ -1,0 +1,22 @@
+name: "Home Lab K8s + easyTravel Portfolio"
+type: dashboard
+description: "Portfolio dashboard for Dynatrace agent controlled home lab K8s cluster and easyTravel demo. Built with dtctl for observability automation."
+owner: "portfolio"
+isprivate: false
+content:
+  - type: "markdown"
+    title: "Overview"
+    markdown: |
+      **Dynatrace dtctl Agent Portfolio**
+      - Cluster: kind-dt-homelab (WSL2)
+      - Demo App: easyTravel (Docker/K8s manifests from Dynatrace)
+      - Agent Capabilities: declarative apply, DQL queries, Davis AI via dtctl, webhook-driven automations
+  - type: "dql"
+    title: "Cluster Nodes"
+    query: "fetch k8s_nodes | limit 10"
+  - type: "dql"
+    title: "Pods Status"
+    query: "fetch k8s_pods | filter k8s.cluster.name == \"dt-homelab\" | limit 20"
+  - type: "problems"
+    title: "Active Problems"
+    query: "fetch problems | filter status == \"open\" | limit 5"

@@ -1,0 +1,53 @@
+# Copy for dynatrace/workflows structure (consistent with dashboards/slos)
+# dtctl apply -f this file
+
+title: "EasyTrade - Frontend & ContentCreator Self-Healing"
+description: "Automation for EasyTrade frontend and contentcreator. Detects problems (Davis AI or metrics) and self-heals by restarting pods or scaling the deployment. Demonstrates resilient microservices monitoring in the Dynatrace EasyTrade portfolio."
+
+trigger:
+  type: on-problem
+  filter:
+    entity:
+      - "easytrade-frontend"
+      - "easytrade-contentcreator"
+    problemTitle:
+      - contains: "EasyTrade"
+    or:
+      - metric: "builtin:service.response.time"
+        threshold: 2000
+      - metric: "builtin:service.errors.total"
+        threshold: 3
+
+actions:
+  - name: "Comment on problem with self-heal intent"
+    type: "add-comment"
+    input:
+      comment: |
+        [SELF-HEALING] EasyTrade Frontend/ContentCreator issue.
+        Auto-remediation starting: Restart + health check.
+        Namespace: easytrade
+        Context: kind-dt-homelab
+        Powered by DynaKube + Workflows.
+
+  - name: "Restart frontend deployment"
+    type: "kubernetes-restart-deployment"
+    input:
+      namespace: "easytrade"
+      deployment: "frontend"
+
+  - name: "Scale contentcreator if needed (self-yield / auto-scale)"
+    type: "kubernetes-scale-deployment"
+    input:
+      namespace: "easytrade"
+      deployment: "contentcreator"
+      replicas: 3
+
+  - name: "Post-healing verification"
+    type: "exec-slo"
+    input:
+      sloId: "{{ easytrade-response-time }}"
+
+  - name: "Send notification / alert"
+    type: "notification"
+    input:
+      message: "EasyTrade frontend self-healed. Check Dynatrace for traces and new problems."

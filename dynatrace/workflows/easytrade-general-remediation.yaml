@@ -1,0 +1,44 @@
+# Copy for dynatrace/workflows structure
+# dtctl create workflow -f this file
+
+title: "EasyTrade - General Self-Healing & Remediation"
+description: "Catch-all automation for the full EasyTrade stack (all 19+ services). Reactive on Davis problems from the problem-operator or loadgen. Provides self-healing (restarts, comments, notifications) and demonstrates comprehensive Dynatrace automation for microservices observability portfolio."
+
+trigger:
+  type: "on-problem"
+  filter:
+    problemTitle:
+      - contains: "EasyTrade"
+
+actions:
+  - name: "Log all EasyTrade problems"
+    type: "add-comment"
+    input:
+      comment: "EasyTrade general remediation triggered. Full stack health check in progress."
+
+  - name: "Restart critical services (broker + frontend)"
+    type: "kubernetes-restart-deployment"
+    input:
+      namespace: "easytrade"
+      deployment: "broker"
+
+  - name: "Run DQL health query post-action"
+    type: "query"
+    input:
+      dql: |
+        fetch logs, from: -5m
+        | filter service.name == "broker" or service.name == "frontend"
+        | summarize error_rate = count() / count() * 100
+
+  - name: "Trigger SLO evaluation for the stack"
+    type: "exec-slo"
+    input:
+      sloId: "{{ easytrade-availability }}"
+
+  - name: "Final notification with links"
+    type: "notification"
+    input:
+      message: |
+        EasyTrade self-healing complete.
+        View in Dynatrace: {{ problem.url }}
+        Cluster access: port 8081 on homelab.

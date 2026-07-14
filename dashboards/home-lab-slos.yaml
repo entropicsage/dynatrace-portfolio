@@ -1,0 +1,11 @@
+name: "Home Lab SLOs - K8s & easyTravel"
+type: slo
+description: "Portfolio SLOs for demo cluster and app. Managed declaratively with dtctl."
+slos:
+  - name: "K8s Cluster Availability"
+    target: 99.5
+    warning: 99.9
+    errorBudget: 0.5
+  - name: "easyTravel Frontend Success Rate"
+    target: 95
+    warning: 98

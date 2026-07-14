@@ -1,0 +1,8 @@
+---
+dynatrace_tenant_url: "https://YOUR_TENANT.live.dynatrace.com"
+dynatrace_paas_token: ""
+oneagent_host_group: "easytrade-homelab"
+oneagent_prerequisites:
+  - curl
+  - unzip
+oneagent_install_dir: "/opt/dynatrace/oneagent"

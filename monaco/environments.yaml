@@ -1,0 +1,3 @@
+my-dt:
+  url: https://YOUR_TENANT_ID.live.dynatrace.com
+  token: YOUR_DT_API_TOKEN_HERE

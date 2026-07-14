@@ -1,0 +1,86 @@
+---
+# prepare-host.yml
+# Base preparation for Linux hosts that will run Dynatrace agents or workloads.
+# Includes common packages, updates, and configurations that support
+# the EasyTrade homelab and general DevOps tasks.
+
+- name: Prepare Linux host for Dynatrace and DevOps workloads
+  hosts: linux_hosts
+  become: yes
+  gather_facts: yes
+  vars:
+    install_docker: false  # Set to true if needed for kind/Docker
+
+  tasks:
+    - name: Update package cache and upgrade system
+      package:
+        name: "*"
+        state: latest
+      when: ansible_os_family == "RedHat" or ansible_os_family == "Debian"
+      tags: update
+
+    - name: Install common utilities
+      package:
+        name:
+          - curl
+          - wget
+          - vim
+          - htop
+          - iotop
+          - net-tools
+          - lvm2
+          - rsync
+          - unzip
+          - jq
+        state: present
+      tags: packages
+
+    - name: Ensure firewalld or ufw is configured (example)
+      # Customize per environment
+      debug:
+        msg: "Review firewall rules for Dynatrace ports (9999 for ActiveGate, etc.)"
+
+    - name: Install Docker (optional, for kind clusters)
+      block:
+        - name: Install Docker prerequisites
+          package:
+            name:
+              - yum-utils
+            state: present
+          when: ansible_os_family == "RedHat"
+
+        - name: Add Docker repo and install
+          shell: |
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sh get-docker.sh
+          args:
+            creates: /usr/bin/docker
+          when: install_docker | bool
+      tags: docker
+
+    - name: Create standard directories for monitoring and scripts
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/dynatrace
+        - /opt/scripts
+        - /var/log/dynatrace
+
+    - name: Copy useful DevOps scripts from this repo (example)
+      # In real use, sync from a git repo or artifact store
+      debug:
+        msg: "Consider using git or rsync to deploy scripts/devops/ tools to target hosts."
+
+    - name: Set hostname tag for Dynatrace
+      lineinfile:
+        path: /etc/hostname
+        line: "{{ inventory_hostname }}"
+      notify: restart hostname
+      tags: hostname
+
+  handlers:
+    - name: restart hostname
+      command: hostnamectl set-hostname {{ inventory_hostname }}
+      changed_when: true

@@ -9,7 +9,10 @@
 # (or the apply script). This is the catch-all for the EasyTrade stack.
 
 title: "EasyTrade - General Self-Healing & Remediation"
-description: "Catch-all automation for the full EasyTrade stack (all 19+ services). Reactive on Davis problems from the problem-operator or loadgen. Provides self-healing (restarts, comments, notifications) and demonstrates comprehensive Dynatrace automation for microservices observability portfolio. (DQL schedule version available in comments for proactive.)"
+description: >-
+  Catch-all automation for the full EasyTrade stack (all 19+ services). Reactive on Davis problems from the problem-operator or loadgen. Provides self-healing (restarts,
+  comments, notifications) and demonstrates comprehensive Dynatrace automation for microservices observability portfolio. (DQL schedule version available in comments for
+  proactive.)
 
 trigger:
   type: "on-problem"

@@ -25,14 +25,14 @@ provider "dynatrace" {
 
 # SLO for EasyTrade availability - ties to self-healing workflows and dashboards
 resource "dynatrace_slo_v2" "easytrade_availability" {
-  name               = "EasyTrade Availability"
-  enabled            = true
-  metric_expression  = "(100)*(builtin:service.errors.server.successCount:splitBy())/(builtin:service.requestCount.server:splitBy())"
-  evaluation_type    = "AGGREGATE"
-  filter             = "type(SERVICE),entityName.startsWith(\"easytrade\")"
-  target             = 99.5
-  warning            = 99.8
-  evaluation_window  = "-1w"
+  name              = "EasyTrade Availability"
+  enabled           = true
+  metric_expression = "(100)*(builtin:service.errors.server.successCount:splitBy())/(builtin:service.requestCount.server:splitBy())"
+  evaluation_type   = "AGGREGATE"
+  filter            = "type(SERVICE),entityName.startsWith(\"easytrade\")"
+  target            = 99.5
+  warning           = 99.8
+  evaluation_window = "-1w"
 }
 
 # Management zone scoping EasyTrade services for dashboard/alerting isolation
@@ -59,7 +59,7 @@ resource "dynatrace_management_zone_v2" "easytrade" {
 
 # Alerting profile for EasyTrade problems from loadgen/problem-operator
 resource "dynatrace_alerting" "easytrade_critical" {
-  name = "EasyTrade Critical"
+  name            = "EasyTrade Critical"
   management_zone = dynatrace_management_zone_v2.easytrade.id
   rules {
     rule {

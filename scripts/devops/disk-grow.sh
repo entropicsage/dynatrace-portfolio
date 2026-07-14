@@ -51,7 +51,7 @@ echo ""
 echo "Rescanning device (if applicable)..."
 # For SCSI devices
 if [[ -b "$DEVICE" ]]; then
-  echo "1" > /sys/block/$(basename "$DEVICE")/device/rescan 2>/dev/null || true
+  echo "1" > "/sys/block/$(basename "$DEVICE")/device/rescan" 2>/dev/null || true
 fi
 
 echo "Growing physical volume if LVM..."

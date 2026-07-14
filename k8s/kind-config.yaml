@@ -2,27 +2,27 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 name: dt-homelab
 nodes:
-- role: control-plane
-  extraPortMappings:
-  # Map ingress controller (80/443) to host ports so EasyTrade is reachable
-  # on the WSL host IP (and via Windows port proxy for full LAN access)
-  # Using 8081 to avoid any host port conflicts (e.g. other services on 8080)
-  - containerPort: 80
-    hostPort: 8081
-    protocol: TCP
-  - containerPort: 443
-    hostPort: 8444
-    protocol: TCP
-  # Direct access to frontend service if needed (via NodePort mapping)
-  - containerPort: 30000
-    hostPort: 3001
-    protocol: TCP
-  kubeadmConfigPatches:
-  - |
-    kind: InitConfiguration
-    nodeRegistration:
-      kubeletExtraArgs:
-        node-labels: "ingress-ready=true"
+  - role: control-plane
+    extraPortMappings:
+      # Map ingress controller (80/443) to host ports so EasyTrade is reachable
+      # on the WSL host IP (and via Windows port proxy for full LAN access)
+      # Using 8081 to avoid any host port conflicts (e.g. other services on 8080)
+      - containerPort: 80
+        hostPort: 8081
+        protocol: TCP
+      - containerPort: 443
+        hostPort: 8444
+        protocol: TCP
+      # Direct access to frontend service if needed (via NodePort mapping)
+      - containerPort: 30000
+        hostPort: 3001
+        protocol: TCP
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
 # Usage:
 # kind create cluster --name dt-homelab --config k8s/kind-config.yaml
 # This makes http://YOUR_WSL_IP:8081 and http://localhost:8081 (from Windows) work for the app.

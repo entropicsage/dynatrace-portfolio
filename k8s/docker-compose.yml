@@ -20,7 +20,7 @@ services:
       - 28017
 
   backend:
-    <<: *default-service      
+    <<: *default-service
     hostname: easytravel-backend
     container_name: backend
     image: "dynatrace/easytravel-backend"
@@ -36,7 +36,7 @@ services:
       ET_DATABASE_PASSWORD: "adminadmin"
 
   frontend:
-    <<: *default-service      
+    <<: *default-service
     hostname: easytravel-frontend
     container_name: frontend
     image: "dynatrace/easytravel-frontend"
@@ -50,7 +50,7 @@ services:
       ET_BACKEND_URL: "http://easytravel-backend:8080"
 
   angular-frontend:
-    <<: *default-service      
+    <<: *default-service
     hostname: easytravel-angular-frontend
     container_name: angular-frontend
     image: "dynatrace/easytravel-angular-frontend"
@@ -64,7 +64,7 @@ services:
       ET_BACKEND_URL: "http://easytravel-backend:8080"
 
   www:
-    <<: *default-service       
+    <<: *default-service
     hostname: easytravel-www
     container_name: www
     image: "dynatrace/easytravel-nginx"
@@ -82,7 +82,7 @@ services:
       ET_BACKEND_LOCATION: "easytravel-backend:8080"
 
   headless-customer-loadgen:
-    <<: *default-service      
+    <<: *default-service
     container_name: headless-customer-loadgen
     image: "dynatrace/easytravel-headless-loadgen"
     links:
@@ -96,7 +96,7 @@ services:
       SCENARIO_NAME: "Headless Customer Scenario"
 
   headless-angular-loadgen:
-    <<: *default-service      
+    <<: *default-service
     container_name: headless-angular-loadgen
     image: "dynatrace/easytravel-headless-loadgen"
     links:
@@ -110,7 +110,7 @@ services:
       SCENARIO_NAME: "Headless Angular Scenario"
 
   loadgen:
-    <<: *default-service      
+    <<: *default-service
     container_name: loadgen
     image: "dynatrace/easytravel-loadgen"
     links:

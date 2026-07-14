@@ -12,7 +12,9 @@
 # Ties directly to the DynaKube-monitored EasyTrade app (19 services).
 
 title: "EasyTrade - Broker Self-Healing"
-description: "Self-healing automation for the EasyTrade broker service. On Davis-detected problems (e.g. high error rate from loadgen or problem-operator), automatically remediate by restarting the deployment and notifying. Part of the Dynatrace portfolio demo for auto-remediation on microservices."
+description: >-
+  Self-healing automation for the EasyTrade broker service. On Davis-detected problems (e.g. high error rate from loadgen or problem-operator), automatically remediate by
+  restarting the deployment and notifying. Part of the Dynatrace portfolio demo for auto-remediation on microservices.
 
 trigger:
   type: on-problem

@@ -11,7 +11,9 @@
 # Uses DynaKube-monitored K8s resources for auto-remediation (restart + scale).
 
 title: "EasyTrade - Frontend & ContentCreator Self-Healing"
-description: "Automation for EasyTrade frontend and contentcreator. Detects problems (Davis AI or metrics) and self-heals by restarting pods or scaling the deployment. Demonstrates resilient microservices monitoring in the Dynatrace EasyTrade portfolio."
+description: >-
+  Automation for EasyTrade frontend and contentcreator. Detects problems (Davis AI or metrics) and self-heals by restarting pods or scaling the deployment. Demonstrates
+  resilient microservices monitoring in the Dynatrace EasyTrade portfolio.
 
 trigger:
   type: on-problem

@@ -35,20 +35,20 @@ kubectl get pods --all-namespaces --field-selector=status.phase!=Running 2>/dev/
 kubectl get pods -A | grep -E 'CrashLoop|Pending|Error|Evicted' | head -20 || true
 
 if [[ -n "$NAMESPACE" ]]; then
-  NS_FLAG="-n $NAMESPACE"
+  NS_FLAG=(-n "$NAMESPACE")
 else
-  NS_FLAG="--all-namespaces"
+  NS_FLAG=(--all-namespaces)
 fi
 
 echo ""
 echo "=== Recent Events (last 20) ==="
-kubectl get events $NS_FLAG --sort-by=.lastTimestamp 2>/dev/null | tail -20 || true
+kubectl get events "${NS_FLAG[@]}" --sort-by=.lastTimestamp 2>/dev/null | tail -20 || true
 
 echo ""
 echo "=== Top Resource Consumers (if metrics available) ==="
-kubectl top pods $NS_FLAG --sort-by=cpu 2>/dev/null | head -15 || echo "kubectl top not available"
+kubectl top pods "${NS_FLAG[@]}" --sort-by=cpu 2>/dev/null | head -15 || echo "kubectl top not available"
 echo ""
-kubectl top pods $NS_FLAG --sort-by=memory 2>/dev/null | head -15 || true
+kubectl top pods "${NS_FLAG[@]}" --sort-by=memory 2>/dev/null | head -15 || true
 
 echo ""
 echo "=== Dynatrace Integration Note ==="

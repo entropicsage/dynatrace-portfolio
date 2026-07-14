@@ -80,7 +80,7 @@ For free-form, multi-turn, highly capable conversation that still leverages all 
 
 - Enable the **Dynatrace MCP Server** in your tenant (under Dynatrace Intelligence).
 - Connect it to Claude Desktop / Cursor / Claude Code (or Atlassian Rovo, Port, Azure SRE Agent, etc.).
-- Use the skills + prompts from `~/projects/dynatrace-for-ai` (including the custom `easytrade-troubleshoot.prompt.md` we created).
+- Use skills and prompts from the `dynatrace-for-ai` project, including a custom scoped troubleshooting prompt.
 - Result: A much stronger conversational partner that can call Dynatrace tools (DQL, problems, traces, K8s) behind the scenes while speaking naturally.
 
 This is the current recommended way to overcome the conversational limitations of built-in Assist.

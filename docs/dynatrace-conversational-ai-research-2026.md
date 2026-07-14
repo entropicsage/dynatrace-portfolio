@@ -11,7 +11,7 @@ Research real guides, implementations, community examples, and what maximizes po
 - GitHub: Dynatrace/dynatrace-for-ai (skills, prompts, dtctl integration).
 - X/Twitter discussions (agentic AI, MCP, Rovo, Claude Code, LangChain).
 - Community examples: Pavan Belagatti (dev.to "Agentic Observability"), ARIA project (GitHub), Riley Brown/Avthar MCP tutorials, LangChain announcements.
-- Cross-referenced with prior local work (dynatrace-for-ai clone, custom easytrade-troubleshoot.prompt.md, EasyTrade loadgen data).
+- Cross-referenced with hands-on lab work (dynatrace-for-ai skills, a custom scoped troubleshooting prompt, EasyTrade load-generator data).
 
 ## Executive Recommendation
 **B (MCP-connected chatbot) is currently the best and most recommended path for maximizing conversational power with Dynatrace.**
@@ -45,7 +45,7 @@ Your EasyTrade setup (loadgen-driven realistic browser sessions, DynaKube with m
 **Setup (from Dynatrace blog March 2026)**:
 1. In Claude (Code/Desktop/Chat): Go to Connectors → search "Dynatrace" → install "Dynatrace MCP Server" connector.
 2. Follow prompts for tenant URL + scoped API token.
-3. (Optional but recommended) Load dynatrace-for-ai skills + your custom easytrade-troubleshoot.prompt.md.
+3. (Optional but recommended) Load dynatrace-for-ai skills plus a custom scoped troubleshooting prompt.
 4. Query naturally. Example from blog: Receive Jira ticket → ask Claude → it pulls root cause, logs, traces, profiling data via MCP.
 
 **Community Guides & Real Implementations**:
@@ -92,7 +92,7 @@ Your EasyTrade setup (loadgen-driven realistic browser sessions, DynaKube with m
 From all sources, the winning patterns (2026 state of the art):
 
 1. **MCP as the foundation for observability tools** — Standardized, maintained by Dynatrace, works across clients.
-2. **Layer Agent Skills + custom prompts** — dynatrace-for-ai provides battle-tested knowledge (DQL rules, obs best practices, problem investigation flows). Always scope (e.g., your easytrade-troubleshoot.prompt.md rules: k8s.namespace.name == "easytrade", reference loadgen scenarios, prioritize correlated traces).
+2. **Layer Agent Skills + custom prompts** — dynatrace-for-ai provides battle-tested knowledge (DQL rules, obs best practices, problem investigation flows). Always scope prompts (e.g., k8s.namespace.name == "easytrade", reference loadgen scenarios, prioritize correlated traces).
 3. **Client choice for conversation quality**:
    - Claude (Code/Desktop) for developer/SRE workflows — excellent at tool use + natural dialogue.
    - Atlassian Rovo for team/ticket-integrated conversations.
@@ -121,7 +121,7 @@ From all sources, the winning patterns (2026 state of the art):
 - Best practice evolution: Watch Dynatrace blogs, KubeCon/observability events, LangChain releases. MCP appears to be winning for "conversational execution."
 
 ## Recommended Next Steps
-1. **Prioritize B (MCP)**: Enable Dynatrace MCP Server in your tenant (Dynatrace Intelligence section). Connect to Claude (use the plugin or Connectors UI). Load skills plus the easytrade-troubleshoot prompt.
+1. **Prioritize B (MCP)**: Enable Dynatrace MCP Server in your tenant (Dynatrace Intelligence section). Connect to Claude (use the plugin or Connectors UI). Load skills plus a custom scoped troubleshooting prompt.
 2. **Enhance with hybrid if desired**: Add langchain-mcp-adapters if building a custom orchestrator.
 3. **Keep data fresh**: Run the load generator continuously (multiple replicas plus CronJob bursts) to keep problems and traces flowing.
 4. **Document & demo**: This research + your existing docs (dynatrace-assist-best-practices.md, claude-dynatrace-mcp-conversational-assist.md) + custom prompt make a strong portfolio piece for "Agentic Observability with Dynatrace + Claude".

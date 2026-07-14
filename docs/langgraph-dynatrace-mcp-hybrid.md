@@ -35,7 +35,7 @@ Official bridge: `langchain-mcp-adapters` (https://github.com/langchain-ai/langc
 Your current assets are a perfect foundation:
 - Live data from loadgen (8 replicas @ http://YOUR_WSL_IP:8081).
 - Dynakube with enrichment + log monitoring.
-- Custom `easytrade-troubleshoot.prompt.md` (scope to `k8s.namespace.name == "easytrade"`, reference specific loadgen scenarios, prioritize correlated traces).
+- A custom troubleshooting prompt (scope to `k8s.namespace.name == "easytrade"`, reference specific loadgen scenarios, prioritize correlated traces).
 - Existing self-healing workflows.
 - Portfolio docs on MCP + Assist best practices.
 
@@ -101,7 +101,7 @@ For full graphs with persistence/human-in-the-loop, use LangGraph's `StateGraph`
 2. Install: `pip install langchain langgraph langchain-mcp-adapters langchain-anthropic`
 3. Get a Claude API key (or use Claude Code if it supports MCP natively).
 4. Test with the Dynatrace MCP tools directly in a simple LangGraph agent.
-5. Inject your existing `easytrade-troubleshoot.prompt.md` as system context.
+5. Inject the custom troubleshooting prompt as system context.
 6. Add custom tools for your cluster (scaling loadgen, etc.).
 7. Observe the agent with Dynatrace (it will appear as its own service).
 

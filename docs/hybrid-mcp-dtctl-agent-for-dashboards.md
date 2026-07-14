@@ -32,7 +32,7 @@ Use **LangGraph** (or Claude Code + skills) as the orchestrator:
 
 1. **MCP tools** (via langchain-mcp-adapters or native in Claude): For conversational queries, pulling real-time traces/logs/problems from your complex prod environment.
 2. **dtctl tools** (wrapped as LangGraph tools or via the dtctl skill): For actions like "create a dashboard for EasyTrade frontend errors" or "retrieve and analyze data from this dashboard".
-3. **Custom EasyTrade scoping** (use your existing easytrade-troubleshoot.prompt.md + dt-app-dashboards rules).
+3. **Custom EasyTrade scoping** (a custom troubleshooting prompt plus dt-app-dashboards rules).
 4. **Safety layers for prod**:
    - Human-in-the-loop (LangGraph interrupts) before any write (dashboard create, etc.).
    - Scoped tokens (read-only for MCP, limited for dtctl actions).
@@ -52,14 +52,14 @@ dtctl auth login --context my-env --environment "https://YOUR_TENANT_ID.live.dyn
 # dtctl agent skill (teaches the LLM how to use dtctl safely)
 npx skills add dynatrace-oss/dtctl
 
-# The dashboards skill (already in your clone at ~/projects/dynatrace-for-ai/skills/dt-app-dashboards)
+# The dashboards skill (from dynatrace-for-ai: skills/dt-app-dashboards)
 # In Claude Code / Cursor: add the skill or point to the SKILL.md
 ```
 
 Load these in your agent prompt:
 - dt-app-dashboards (for exact JSON + dtctl create/update workflow)
 - dt-dql-essentials
-- Your custom easytrade-troubleshoot.prompt.md (scope to namespace, loadgen scenarios, external URL if relevant)
+- A custom troubleshooting prompt (scope to namespace, loadgen scenarios, external URL if relevant)
 - dtctl skill
 
 ### 2. LangGraph Hybrid Agent Example (Python)

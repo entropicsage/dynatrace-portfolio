@@ -73,7 +73,8 @@ This repo follows patterns from the official Dynatrace tooling ecosystem (dynatr
 
 ```bash
 export PATH=~/.local/bin:$PATH
-cd ~/projects/dynatrace-portfolio
+git clone https://github.com/entropicsage/dynatrace-portfolio.git
+cd dynatrace-portfolio
 
 # 1. Create the kind cluster with network exposure
 kind get clusters | grep -q dt-homelab || kind create cluster --name dt-homelab --config k8s/kind-config.yaml --wait 5m
